@@ -21,7 +21,7 @@ menu:
         - name: Focaccias
           url: focaccias/
           weight: 4 
-
+summaryLength: 0
 params:
     description: "This website hosts Francesco Tognetti's research papers, curriculum vitae, contact information and a list of Focaccias"
     author: Francesco Tognetti
