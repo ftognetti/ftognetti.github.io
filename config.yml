@@ -26,13 +26,13 @@ params:
     description: "This website hosts Francesco Tognetti's research papers, curriculum vitae, contact information and a list of Focaccias"
     author: Francesco Tognetti
     # googleAnalyticsID: "G-XXXXX"
-    DateFormat: "1 January 2006"
+    DateFormat: "Jan 2, 2006"
     defaultTheme: light
     hideFooter: false
     disableThemeToggle: true
     ShowShareButtons: false
     ShowReadingTime: false
-    disableSpecial1stPost: true
+    disableSpecial1stPost: false
     disableAnchoredHeadings: true
     ShowPostNavLinks: false
     ShowBreadCrumbs: false

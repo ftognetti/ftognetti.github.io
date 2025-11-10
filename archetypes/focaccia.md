@@ -4,6 +4,7 @@ date: 2006-03-15
 description: "this is a description"
 url: /focaccia/
 tags: ["keyword 1","keyword 2","keyword 3","keyword 4","keyword 5","keyword 6","keyword 7","keyword 8"]
+hideAuthor: true
 ---
 
 ## Introduction

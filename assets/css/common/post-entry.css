@@ -2,6 +2,7 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    background: #d878ebaa;
     justify-content: center;
     min-height: 200px;
     margin: var(--gap) 0 calc(var(--gap) * 2) 0;
