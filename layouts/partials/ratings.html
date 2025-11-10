@@ -1,94 +1,126 @@
-<div id="rating">
-  <span data-star="1">☆</span>
-  <span data-star="2">☆</span>
-  <span data-star="3">☆</span>
-  <span data-star="4">☆</span>
-  <span data-star="5">☆</span>
-  <p id="rating-result"></p>
+<div id="reactions">
+  <button data-reaction="heart">❤️ <span class="count">0</span></button>
+  <button data-reaction="thumbs_up">👍 <span class="count">0</span></button>
+  <button data-reaction="meh">😐 <span class="count">0</span></button>
+  <button data-reaction="disgusting">🤢 <span class="count">0</span></button>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { 
-    getFirestore, doc, getDoc, setDoc, updateDoc, increment 
-  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { 
+  getFirestore, doc, getDoc, setDoc, updateDoc, increment 
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDfAlyWJtURdzIE9gMCh19UrrUW2xcGUz8",
-    authDomain: "focaccias-d746d.firebaseapp.com",
-    projectId: "focaccias-d746d"
-  };
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyDfAlyWJtURdzIE9gMCh19UrrUW2xcGUz8",
+  authDomain: "focaccias-d746d.firebaseapp.com",
+  projectId: "focaccias-d746d"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  const pageId = "{{ .Permalink }}".replace(/[\/:]+/g, "_");
-  const stars = document.querySelectorAll("#rating span");
-  const result = document.getElementById("rating-result");
+// Unique ID per page
+const pageId = "{{ .Permalink }}".replace(/[\/:]+/g, "_");
 
-  // 🔒 Check if already voted this session
-  const votedKey = `voted_${pageId}`;
-  let hasVoted = sessionStorage.getItem(votedKey) === "true";
+// DOM elements
+const reactions = document.querySelectorAll("#reactions button");
 
-  // 💫 helper: visually fill stars
-  function fillStars(avg) {
-    stars.forEach((s, i) => {
-      s.textContent = (i + 1) <= avg ? "★" : "☆";
-      s.style.color = (i + 1) <= avg ? "black" : "gray";
-    });
-  }
+// Track user's reaction in session
+const reactionKeySession = `reaction_${pageId}`;
+let userReaction = sessionStorage.getItem(reactionKeySession) || null;
 
-  async function getRating() {
-    const ref = doc(db, "ratings", pageId);
-    const snap = await getDoc(ref);
-    if (snap.exists()) {
-      const data = snap.data();
-      const avg = (data.total / data.count).toFixed(1);
-      fillStars(Math.round(avg));
-      result.textContent = `Average: ${avg} ☆ (${data.count} votes)`;
+// Helper: update counts and highlight selected
+async function updateCounts() {
+  const ref = doc(db, "reactions", pageId);
+  const snap = await getDoc(ref);
+
+  reactions.forEach(r => {
+    const key = r.dataset.reaction;
+    const countSpan = r.querySelector(".count");
+
+    if (snap.exists() && snap.data()[key] !== undefined) {
+      countSpan.textContent = snap.data()[key];
     } else {
-      fillStars(0);
-      result.textContent = "No ratings yet";
+      countSpan.textContent = "0";
     }
-  }
 
-  // ⭐ handle click only if not voted
-  stars.forEach(star => {
-    star.addEventListener("click", async () => {
-      if (hasVoted) {
-        alert("You already rated this page this session!");
-        return;
-      }
-
-      const value = parseInt(star.dataset.star);
-      const ref = doc(db, "ratings", pageId);
-      const snap = await getDoc(ref);
-
-      if (snap.exists()) {
-        await updateDoc(ref, {
-          total: increment(value),
-          count: increment(1)
-        });
-      } else {
-        await setDoc(ref, { total: value, count: 1 });
-      }
-
-      fillStars(value);
-      sessionStorage.setItem(votedKey, "true");
-      hasVoted = true;
-      await getRating();
-    });
+    // Highlight the user's reaction
+    r.classList.toggle("active", userReaction === key);
   });
+}
 
-  getRating();
+// Handle click
+reactions.forEach(reaction => {
+  reaction.addEventListener("click", async () => {
+    const clickedKey = reaction.dataset.reaction;
+    if (userReaction === clickedKey) return; // no change
+
+    const ref = doc(db, "reactions", pageId);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      // initialize all counts
+      await setDoc(ref, {
+        heart: 0,
+        thumbs_up: 0,
+        meh: 0,
+        disgusting: 0
+      });
+    }
+
+    // Update Firestore: decrement old reaction, increment new reaction
+    const updates = {};
+    if (userReaction) updates[userReaction] = increment(-1);
+    updates[clickedKey] = increment(1);
+
+    await updateDoc(ref, updates);
+
+    // Save current reaction in session
+    userReaction = clickedKey;
+    sessionStorage.setItem(reactionKeySession, clickedKey);
+
+    // Update counts & highlight
+    updateCounts();
+  });
+});
+
+// Initial load
+updateCounts();
 </script>
 
 <style>
-  #rating span {
-    cursor: pointer;
-    transition: color 0.2s, transform 0.1s;
-  }
-  #rating span:hover {
-    transform: scale(1.2);
-  }
+#reactions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+#reactions button {
+  font-size: 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#reactions button:hover {
+  transform: scale(1.1);
+  border-color: #999;
+}
+
+#reactions button.active {
+  border-color: #7c3aed;       /* purple border */
+  background-color: #e9d5ff;   /* light purple background */
+}
+
+#reactions .count {
+  font-size: 1.2rem;
+}
 </style>
