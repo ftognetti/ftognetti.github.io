@@ -27,7 +27,7 @@ params:
     author: Francesco Tognetti
     # googleAnalyticsID: "G-XXXXX"
     DateFormat: "Jan 2, 2006"
-    defaultTheme: dark
+    defaultTheme: light
     hideFooter: false
     disableThemeToggle: true
     ShowShareButtons: false
