@@ -50,7 +50,7 @@ params:
           enabled: true
           title: Francesco Tognetti
           subtitle: "PhD student in mathematical logic at the university of luxembourg"
-          imageUrl: "picture.jpeg"
+          imageUrl: "picture.png"
           imageWidth: 160
           imageHeight: 160
           buttons:
