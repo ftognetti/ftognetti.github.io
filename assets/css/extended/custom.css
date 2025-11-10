@@ -1,0 +1,6 @@
+.post-entry:first-of-type {
+    background-color: #f3e8ff; /* soft purple */
+    border-left: 5px solid #a855f7; /* accent line */
+    border-radius: 10px;
+    padding: 1rem;
+  }
