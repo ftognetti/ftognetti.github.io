@@ -1,9 +1,10 @@
 ---
 title: "Relational Algebras Retyped" 
 date: 2026-02-18
+draft: false
 tags: ["Category Theory","Triples","Relations"]
 author: ["Michael Barr","Francesco Tognetti"]
-description: "This paper is a retyping of 1969 Michael Barr's original "Relational Algebras"" 
+description: "This paper is a retyping of 1969 Michael Barr's original Relational Algebras" 
 summary: "The main result of the paper (Theorem 3.1) shows that Topological spaces are relational algebras for the ultrafilter monad." 
 
 ---
